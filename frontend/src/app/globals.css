@@ -113,7 +113,6 @@
       radial-gradient(circle at 75% 25%, rgba(74, 156, 219, 0.08) 0%, transparent 50%);
   }
   
-  /* Professional Gradients */
   .uxscan-gradient {
     background: linear-gradient(135deg, #CF9A41 0%, #EACD85 50%, #CF9A41 100%);
     box-shadow: 0 8px 32px rgba(207, 154, 65, 0.4);
@@ -129,7 +128,6 @@
     box-shadow: 0 8px 32px rgba(0, 110, 185, 0.4);
   }
   
-  /* Professional Background Effects */
   .gradient-bg-effects::before {
     content: '';
     position: absolute;

@@ -79,3 +79,5 @@ pids/
 *.pid.lock
 
 /.history
+
+database_setup.sql
