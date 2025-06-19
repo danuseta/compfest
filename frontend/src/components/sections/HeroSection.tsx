@@ -2,11 +2,12 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle, Star, ArrowRight } from "lucide-react"
+import Link from "next/link"
 
 export default function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-accent/10 gradient-bg-effects">
-      <div className="w-full px-4 py-12 sm:px-6 sm:py-16 lg:py-24">
+      <div className="max-w-7xl mx-auto px-6 py-12 sm:px-8 sm:py-16 lg:px-12 lg:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           <div className="space-y-6 sm:space-y-8 text-center lg:text-left">
             <div className="space-y-3 sm:space-y-4">
@@ -26,12 +27,16 @@ export default function HeroSection() {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
-              <Button size="lg" className="orange-gradient text-white font-semibold group w-full sm:w-auto">
-                Explore Our Menu
-                <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <Button size="lg" className="orange-gradient text-white font-semibold group w-full sm:w-auto" asChild>
+                <Link href="/menu">
+                  Explore Our Menu
+                  <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Link>
               </Button>
-              <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white w-full sm:w-auto">
-                Contact Brian
+              <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white w-full sm:w-auto" asChild>
+                <Link href="/contact">
+                  Contact Brian
+                </Link>
               </Button>
             </div>
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-2 sm:gap-6 text-xs sm:text-sm text-muted-foreground">
