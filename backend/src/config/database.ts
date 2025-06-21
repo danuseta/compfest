@@ -21,20 +21,19 @@ const sequelize = new Sequelize({
     idle: 10000,
   },
   logging: process.env.NODE_ENV === 'development' ? console.log : false,
-  timezone: '+07:00', 
+  timezone: '+07:00',
 });
 
 export const connectDatabase = async (): Promise<void> => {
   try {
     await sequelize.authenticate();
-    console.log('✅ Database connection has been established successfully.');
+    console.log('Database connection has been established successfully.');
     
-    if (process.env.NODE_ENV === 'development') {
-      await sequelize.sync({ alter: true });
-      console.log('✅ Database models synchronized successfully.');
-    }
+    const { initializeModels } = await import('../models');
+    await initializeModels();
+    
   } catch (error) {
-    console.error('❌ Unable to connect to the database:', error);
+    console.error('Unable to connect to the database:', error);
     process.exit(1);
   }
 };

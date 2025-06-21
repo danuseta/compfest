@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Star, ChevronLeft, ChevronRight, Quote, MessageSquare } from "lucide-react"
+import { FiChevronLeft, FiChevronRight, FiMessageSquare } from "react-icons/fi"
+import { MdStar, MdFormatQuote } from "react-icons/md"
 import { Badge } from "@/components/ui/badge"
 
 const sampleTestimonials = [
@@ -87,7 +88,7 @@ export default function TestimonialsSection() {
     return (
       <div className="flex space-x-1">
         {[1, 2, 3, 4, 5].map((star) => (
-          <Star
+          <MdStar
             key={star}
             className={`w-5 h-5 ${
               star <= rating 
@@ -116,7 +117,7 @@ export default function TestimonialsSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           <div>
             <h3 className="text-2xl font-bold mb-6 flex items-center">
-              <MessageSquare className="w-6 h-6 mr-2 text-primary" />
+              <FiMessageSquare className="w-6 h-6 mr-2 text-primary" />
               Customer Reviews
             </h3>
             
@@ -125,7 +126,7 @@ export default function TestimonialsSection() {
                 <CardContent className="p-8">
                   <div className="flex items-start space-x-4 mb-6">
                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Quote className="w-6 h-6 text-primary" />
+                      <MdFormatQuote className="w-6 h-6 text-primary" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
@@ -155,7 +156,7 @@ export default function TestimonialsSection() {
                   onClick={prevTestimonial}
                   className="flex items-center space-x-1"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <FiChevronLeft className="w-4 h-4" />
                   <span>Previous</span>
                 </Button>
                 
@@ -180,7 +181,7 @@ export default function TestimonialsSection() {
                   className="flex items-center space-x-1"
                 >
                   <span>Next</span>
-                  <ChevronRight className="w-4 h-4" />
+                  <FiChevronRight className="w-4 h-4" />
                 </Button>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Phone, Users } from "lucide-react"
+import { FiPhone, FiUsers } from "react-icons/fi"
 
 export default function ContactSection() {
   return (
@@ -19,14 +19,14 @@ export default function ContactSection() {
           <Card className="premium-card">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg sm:text-xl text-primary flex items-center">
-                <Phone className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                <FiPhone className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                 Contact Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6">
               <div className="flex items-center space-x-3 sm:space-x-4 p-3 sm:p-4 bg-primary/5 rounded-lg sm:rounded-xl">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <Users className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                  <FiUsers className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
                 <div>
                   <p className="font-semibold text-foreground text-sm sm:text-base">Manager</p>
@@ -35,7 +35,7 @@ export default function ContactSection() {
               </div>
               <div className="flex items-center space-x-3 sm:space-x-4 p-3 sm:p-4 bg-accent/5 rounded-lg sm:rounded-xl">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-accent/10 rounded-lg flex items-center justify-center">
-                  <Phone className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
+                  <FiPhone className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
                 </div>
                 <div>
                   <p className="font-semibold text-foreground text-sm sm:text-base">Phone Number</p>

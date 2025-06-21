@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { Phone, Mail, MapPin, Clock, MessageCircle } from "lucide-react"
+import { FiPhone, FiMail, FiMapPin, FiClock, FiMessageCircle } from "react-icons/fi"
 
 export default function ContactPage() {
   return (
@@ -31,7 +31,7 @@ export default function ContactPage() {
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-6 h-6 text-primary" />
+                      <FiPhone className="w-6 h-6 text-primary" />
                     </div>
                     <div>
                       <h3 className="font-semibold mb-1">Phone</h3>
@@ -47,7 +47,7 @@ export default function ContactPage() {
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-6 h-6 text-primary" />
+                      <FiMail className="w-6 h-6 text-primary" />
                     </div>
                     <div>
                       <h3 className="font-semibold mb-1">Email</h3>
@@ -63,7 +63,7 @@ export default function ContactPage() {
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-6 h-6 text-primary" />
+                      <FiMapPin className="w-6 h-6 text-primary" />
                     </div>
                     <div>
                       <h3 className="font-semibold mb-1">Service Area</h3>
@@ -79,7 +79,7 @@ export default function ContactPage() {
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Clock className="w-6 h-6 text-primary" />
+                      <FiClock className="w-6 h-6 text-primary" />
                     </div>
                     <div>
                       <h3 className="font-semibold mb-1">Business Hours</h3>
@@ -100,7 +100,7 @@ export default function ContactPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <MessageCircle className="w-5 h-5" />
+                  <FiMessageCircle className="w-5 h-5" />
                   <span>Send us a Message</span>
                 </CardTitle>
               </CardHeader>
