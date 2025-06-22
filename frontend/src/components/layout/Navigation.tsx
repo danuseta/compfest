@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { SimpleToggle } from "@/components/ui/mode-toggle"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { 
   FiHome, 
   FiBook, 
@@ -12,9 +12,12 @@ import {
   FiMail, 
   FiMenu, 
   FiX,
-  FiPlay
+  FiLogOut,
+  FiLogIn,
+  FiUserPlus
 } from "react-icons/fi"
 import { MdRestaurant } from "react-icons/md"
+import { isAuthenticated, getUser, logout, type User } from "@/lib/auth"
 
 const navItems = [
   { href: "/", label: "Home", icon: FiHome },
@@ -26,6 +29,20 @@ const navItems = [
 export default function Navigation() {
   const pathname = usePathname()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [user, setUser] = useState<User | null>(null)
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated())
+    setUser(getUser())
+  }, [])
+
+  const handleLogout = () => {
+    logout()
+    setIsLoggedIn(false)
+    setUser(null)
+    setIsMenuOpen(false)
+  }
 
   return (
     <nav className="relative border-b border-border bg-card/80 backdrop-blur-lg sticky top-0 z-50">
@@ -60,12 +77,35 @@ export default function Navigation() {
 
           <div className="flex items-center space-x-2 sm:space-x-4">
             <SimpleToggle />
-            <Button size="sm" className="hidden sm:flex items-center space-x-2 bg-primary hover:bg-primary/90 text-primary-foreground text-xs sm:text-sm px-3 py-2 sm:px-4" asChild>
-              <Link href="/subscription">
-                <FiPlay className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span>Get Started</span>
+            
+            {isLoggedIn ? (
+              <div className="hidden md:flex items-center space-x-2">
+                <span className="text-sm text-muted-foreground">
+                  Hello, {user?.full_name?.split(' ')[0]}
+                </span>
+                <Button variant="outline" size="sm" onClick={handleLogout}>
+                  <FiLogOut className="w-4 h-4 mr-2" />
+                  Logout
+                </Button>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center space-x-2">
+                <Button variant="outline" size="sm" asChild>
+                  <Link href="/login">
+                    <FiLogIn className="w-4 h-4 mr-2" />
+                    Login
+                  </Link>
+                </Button>
+                <Button size="sm" asChild>
+                  <Link href="/register">
+                    <FiUserPlus className="w-4 h-4 mr-2" />
+                    Register
               </Link>
             </Button>
+              </div>
+            )}
+
+
             <Button
               variant="ghost"
               size="sm"
@@ -98,12 +138,33 @@ export default function Navigation() {
                   </Link>
                 )
               })}
-              <Button size="sm" className="flex items-center space-x-2 bg-primary hover:bg-primary/90 text-primary-foreground mt-2 w-full" asChild>
-                <Link href="/subscription">
-                  <FiPlay className="w-4 h-4" />
-                  <span>Get Started</span>
+              {isLoggedIn ? (
+                <div className="flex flex-col space-y-2 mt-2">
+                  <div className="text-sm text-muted-foreground px-2">
+                    Hello, {user?.full_name}
+                  </div>
+                  <Button variant="outline" size="sm" onClick={handleLogout} className="w-full">
+                    <FiLogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-col space-y-2 mt-2">
+                  <Button variant="outline" size="sm" asChild className="w-full">
+                    <Link href="/login">
+                      <FiLogIn className="w-4 h-4 mr-2" />
+                      Login
+                    </Link>
+                  </Button>
+                  <Button size="sm" asChild className="w-full">
+                    <Link href="/register">
+                      <FiUserPlus className="w-4 h-4 mr-2" />
+                      Register
                 </Link>
               </Button>
+                </div>
+              )}
+
             </div>
           </div>
         )}

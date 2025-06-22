@@ -3,9 +3,9 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { FiUser } from "react-icons/fi"
 import MealPlanSelector from "./MealPlanSelector"
 import MealTypeSelector from "./MealTypeSelector"
@@ -19,8 +19,6 @@ const mealPlans = [
 ]
 
 interface FormData {
-  name: string
-  phone: string
   selectedPlan: string
   selectedMealTypes: string[]
   selectedDeliveryDays: string[]
@@ -28,8 +26,6 @@ interface FormData {
 }
 
 interface FormErrors {
-  name?: string
-  phone?: string
   selectedPlan?: string
   selectedMealTypes?: string
   selectedDeliveryDays?: string
@@ -41,8 +37,6 @@ interface SubscriptionFormProps {
 
 export default function SubscriptionForm({ onSuccess }: SubscriptionFormProps) {
   const [formData, setFormData] = useState<FormData>({
-    name: "",
-    phone: "",
     selectedPlan: "",
     selectedMealTypes: [],
     selectedDeliveryDays: [],
@@ -51,6 +45,7 @@ export default function SubscriptionForm({ onSuccess }: SubscriptionFormProps) {
 
   const [errors, setErrors] = useState<FormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showModal, setShowModal] = useState(false)
 
   const calculateTotalPrice = () => {
     if (!formData.selectedPlan || formData.selectedMealTypes.length === 0 || formData.selectedDeliveryDays.length === 0) {
@@ -90,9 +85,6 @@ export default function SubscriptionForm({ onSuccess }: SubscriptionFormProps) {
 
   const validateForm = () => {
     const newErrors: FormErrors = {}
-    if (!formData.name.trim()) newErrors.name = "Name is required"
-    if (!formData.phone.trim()) newErrors.phone = "Phone number is required"
-    else if (!/^[0-9+\-\s()]{10,15}$/.test(formData.phone.trim())) newErrors.phone = "Please enter a valid phone number"
     if (!formData.selectedPlan) newErrors.selectedPlan = "Please select a meal plan"
     if (formData.selectedMealTypes.length === 0) newErrors.selectedMealTypes = "Please select at least one meal type"
     if (formData.selectedDeliveryDays.length === 0) newErrors.selectedDeliveryDays = "Please select at least one delivery day"
@@ -101,18 +93,44 @@ export default function SubscriptionForm({ onSuccess }: SubscriptionFormProps) {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubscribeClick = () => {
     if (!validateForm()) return
+    setShowModal(true)
+  }
 
+  const handleConfirmSubscription = async () => {
     setIsSubmitting(true)
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      console.log('Subscription Data:', { ...formData, totalPrice: calculateTotalPrice() })
-      onSuccess()
-      setFormData({ name: "", phone: "", selectedPlan: "", selectedMealTypes: [], selectedDeliveryDays: [], allergies: "" })
+      const submitData = {
+        selectedPlan: formData.selectedPlan,
+        selectedMealTypes: formData.selectedMealTypes,
+        selectedDeliveryDays: formData.selectedDeliveryDays,
+        allergies: formData.allergies.trim() || undefined,
+        totalPrice: calculateTotalPrice()
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/subscriptions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify(submitData),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        onSuccess()
+        setFormData({ selectedPlan: "", selectedMealTypes: [], selectedDeliveryDays: [], allergies: "" })
+        setShowModal(false)
+      } else {
+        console.error('Subscription error:', data.message)
+        alert(data.message || 'Subscription failed. Please try again.')
+      }
     } catch (error) {
       console.error('Error submitting subscription:', error)
+      alert('Network error. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -121,91 +139,88 @@ export default function SubscriptionForm({ onSuccess }: SubscriptionFormProps) {
   const totalPrice = calculateTotalPrice()
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <div className="lg:col-span-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-foreground">
-              <FiUser className="h-5 w-5 text-primary" />
-              Subscription Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Enter your full name"
-                    className={errors.name ? "border-destructive" : ""}
+    <div className="max-w-4xl mx-auto">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-foreground">
+            <FiUser className="h-5 w-5 text-primary" />
+            Subscription Details
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            <MealPlanSelector
+              selectedPlan={formData.selectedPlan}
+              onPlanChange={(planId) => setFormData(prev => ({ ...prev, selectedPlan: planId }))}
+              error={errors.selectedPlan}
+            />
+
+            <MealTypeSelector
+              selectedMealTypes={formData.selectedMealTypes}
+              onMealTypeChange={handleMealTypeChange}
+              error={errors.selectedMealTypes}
+            />
+
+            <DeliveryDaySelector
+              selectedDeliveryDays={formData.selectedDeliveryDays}
+              onDeliveryDayChange={handleDeliveryDayChange}
+              error={errors.selectedDeliveryDays}
+            />
+
+            <div className="space-y-2">
+              <Label htmlFor="allergies">Allergies & Special Requests (Optional)</Label>
+              <Textarea
+                id="allergies"
+                value={formData.allergies}
+                onChange={(e) => setFormData(prev => ({ ...prev, allergies: e.target.value }))}
+                placeholder="Please list any food allergies or special dietary requirements..."
+                rows={3}
+              />
+            </div>
+
+            <Dialog open={showModal} onOpenChange={setShowModal}>
+              <DialogTrigger asChild>
+                <Button
+                  onClick={handleSubscribeClick}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  disabled={totalPrice === 0}
+                >
+                  Subscribe Now - {formatPrice(totalPrice)}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-2xl backdrop-blur-sm">
+                <DialogHeader>
+                  <DialogTitle>Confirm Your Subscription</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <OrderSummary
+                    selectedPlan={formData.selectedPlan}
+                    selectedMealTypes={formData.selectedMealTypes}
+                    selectedDeliveryDays={formData.selectedDeliveryDays}
+                    totalPrice={totalPrice}
                   />
-                  {errors.name && <p className="text-sm text-destructive">{errors.name}</p>}
+                  <div className="flex gap-3">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowModal(false)}
+                      className="flex-1"
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      onClick={handleConfirmSubscription}
+                      disabled={isSubmitting}
+                      className="flex-1 bg-primary hover:bg-primary/90"
+                    >
+                      {isSubmitting ? "Processing..." : "Confirm Order"}
+                    </Button>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    value={formData.phone}
-                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                    placeholder="08123456789"
-                    className={errors.phone ? "border-destructive" : ""}
-                  />
-                  {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
-                </div>
-              </div>
-
-              <MealPlanSelector
-                selectedPlan={formData.selectedPlan}
-                onPlanChange={(planId) => setFormData(prev => ({ ...prev, selectedPlan: planId }))}
-                error={errors.selectedPlan}
-              />
-
-              <MealTypeSelector
-                selectedMealTypes={formData.selectedMealTypes}
-                onMealTypeChange={handleMealTypeChange}
-                error={errors.selectedMealTypes}
-              />
-
-              <DeliveryDaySelector
-                selectedDeliveryDays={formData.selectedDeliveryDays}
-                onDeliveryDayChange={handleDeliveryDayChange}
-                error={errors.selectedDeliveryDays}
-              />
-
-              <div className="space-y-2">
-                <Label htmlFor="allergies">Allergies & Special Requests (Optional)</Label>
-                <Textarea
-                  id="allergies"
-                  value={formData.allergies}
-                  onChange={(e) => setFormData(prev => ({ ...prev, allergies: e.target.value }))}
-                  placeholder="Please list any food allergies or special dietary requirements..."
-                  rows={3}
-                />
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                disabled={isSubmitting || totalPrice === 0}
-              >
-                {isSubmitting ? "Processing..." : `Subscribe Now - ${formatPrice(totalPrice)}`}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="lg:col-span-1">
-        <OrderSummary
-          selectedPlan={formData.selectedPlan}
-          selectedMealTypes={formData.selectedMealTypes}
-          selectedDeliveryDays={formData.selectedDeliveryDays}
-          totalPrice={totalPrice}
-        />
-      </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 } 

@@ -52,14 +52,14 @@ export default function OrderSummary({
   const selectedPlanData = mealPlans.find(p => p.id === selectedPlan)
 
   return (
-    <Card className="sticky top-4">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-foreground">
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-foreground text-lg">
           <MdCalculate className="h-5 w-5 text-primary" />
           Order Summary
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         {selectedPlan && selectedPlanData && (
           <div>
             <h4 className="font-semibold text-foreground">Selected Plan:</h4>

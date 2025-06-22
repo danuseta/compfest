@@ -136,6 +136,8 @@ Subscription.init(
     modelName: 'Subscription',
     tableName: 'subscriptions',
     timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
     indexes: [
       {
         fields: ['user_id']

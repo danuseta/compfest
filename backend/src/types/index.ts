@@ -1,6 +1,4 @@
 export interface CreateSubscriptionRequest {
-  name: string;
-  phone: string;
   selectedPlan: 'diet' | 'protein' | 'royal';
   selectedMealTypes: string[];
   selectedDeliveryDays: string[];

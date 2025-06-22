@@ -85,6 +85,8 @@ MealPlan.init(
     modelName: 'MealPlan',
     tableName: 'meal_plans',
     timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
     indexes: [
       {
         fields: ['plan_id'],

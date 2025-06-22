@@ -80,6 +80,8 @@ Testimonial.init(
     modelName: 'Testimonial',
     tableName: 'testimonials',
     timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
     indexes: [
       {
         fields: ['is_approved']

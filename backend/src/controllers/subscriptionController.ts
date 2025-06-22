@@ -2,11 +2,21 @@ import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import Subscription from '../models/Subscription';
 import MealPlan from '../models/MealPlan';
-import { CreateSubscriptionRequest, SubscriptionStatus } from '../types';
+import { User } from '../models';
+import { SubscriptionStatus } from '../types';
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    email: string;
+    role: string;
+    full_name: string;
+  };
+}
 
 export class SubscriptionController {
   
-  static async createSubscription(req: Request, res: Response): Promise<void> {
+  static async createSubscription(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
@@ -19,14 +29,12 @@ export class SubscriptionController {
       }
 
       const {
-        name,
-        phone,
         selectedPlan,
         selectedMealTypes,
         selectedDeliveryDays,
         allergies,
         totalPrice
-      }: CreateSubscriptionRequest = req.body;
+      } = req.body;
 
       const mealPlan = await MealPlan.findOne({ 
         where: { 
@@ -56,8 +64,9 @@ export class SubscriptionController {
       }
 
       const subscription = await Subscription.create({
-        name,
-        phone,
+        userId: req.user?.id,
+        name: req.user?.full_name || 'N/A',
+        phone: '',
         planId: mealPlan.id,
         selectedPlan,
         selectedMealTypes,
@@ -93,7 +102,7 @@ export class SubscriptionController {
     }
   }
 
-  static async getSubscriptions(req: Request, res: Response): Promise<void> {
+  static async getSubscriptions(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
@@ -105,6 +114,10 @@ export class SubscriptionController {
         whereClause.status = status;
       }
 
+      if (req.user?.role !== 'admin') {
+        whereClause.userId = req.user?.id;
+      }
+
       const { count, rows: subscriptions } = await Subscription.findAndCountAll({
         where: whereClause,
         include: [
@@ -112,6 +125,11 @@ export class SubscriptionController {
             model: MealPlan,
             as: 'mealPlan',
             attributes: ['id', 'planId', 'name', 'price', 'description']
+          },
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'full_name', 'email']
           }
         ],
         limit,
@@ -141,16 +159,27 @@ export class SubscriptionController {
     }
   }
 
-  static async getSubscriptionById(req: Request, res: Response): Promise<void> {
+  static async getSubscriptionById(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       
-      const subscription = await Subscription.findByPk(id, {
+      const whereClause: any = { id };
+      if (req.user?.role !== 'admin') {
+        whereClause.userId = req.user?.id;
+      }
+      
+      const subscription = await Subscription.findOne({
+        where: whereClause,
         include: [
           {
             model: MealPlan,
             as: 'mealPlan',
             attributes: ['id', 'planId', 'name', 'price', 'description', 'features']
+          },
+          {
+            model: User,
+            as: 'user',
+            attributes: ['id', 'full_name', 'email']
           }
         ]
       });
@@ -177,7 +206,7 @@ export class SubscriptionController {
     }
   }
 
-  static async updateSubscriptionStatus(req: Request, res: Response): Promise<void> {
+  static async updateSubscriptionStatus(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
       const { id } = req.params;
       const { status, pauseStartDate, pauseEndDate } = req.body;
@@ -190,7 +219,12 @@ export class SubscriptionController {
         return;
       }
       
-      const subscription = await Subscription.findByPk(id);
+      const whereClause: any = { id };
+      if (req.user?.role !== 'admin') {
+        whereClause.userId = req.user?.id;
+      }
+      
+      const subscription = await Subscription.findOne({ where: whereClause });
       
       if (!subscription) {
         res.status(404).json({
@@ -206,17 +240,17 @@ export class SubscriptionController {
         if (!pauseStartDate || !pauseEndDate) {
           res.status(400).json({
             success: false,
-            message: 'Pause start date and end date are required for paused status'
+            message: 'Pause start and end dates are required for paused status'
           });
           return;
         }
         updateData.pauseStartDate = pauseStartDate;
         updateData.pauseEndDate = pauseEndDate;
-      } else if (status === 'active') {
+      } else {
         updateData.pauseStartDate = null;
         updateData.pauseEndDate = null;
       }
-
+      
       await subscription.update(updateData);
 
       res.json({

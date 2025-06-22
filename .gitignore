@@ -81,3 +81,5 @@ pids/
 /.history
 
 database_setup.sql
+
+/backend/scripts

@@ -2,14 +2,25 @@ import sequelize from '../config/database';
 import Subscription from './Subscription';
 import MealPlan from './MealPlan';
 import Testimonial from './Testimonial';
+import User from './User';
+
+User.hasMany(Subscription, {
+  foreignKey: 'user_id',
+  as: 'subscriptions'
+});
+
+Subscription.belongsTo(User, {
+  foreignKey: 'user_id',
+  as: 'user'
+});
 
 Subscription.belongsTo(MealPlan, {
-  foreignKey: 'planId',
+  foreignKey: 'plan_id',
   as: 'mealPlan'
 });
 
 MealPlan.hasMany(Subscription, {
-  foreignKey: 'planId',
+  foreignKey: 'plan_id',
   as: 'subscriptions'
 });
 
@@ -24,6 +35,7 @@ export const initializeModels = async (): Promise<void> => {
 
 export {
   sequelize,
+  User,
   Subscription,
   MealPlan,
   Testimonial
@@ -31,6 +43,7 @@ export {
 
 export default {
   sequelize,
+  User,
   Subscription,
   MealPlan,
   Testimonial,
