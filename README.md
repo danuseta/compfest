@@ -3,7 +3,7 @@
 Platform web untuk layanan catering makanan sehat dengan sistem subscription yang dapat disesuaikan.
 
 ### Access URLs
-**Demo Site**: [Coming Soon]
+**Demo Site**: https://seacatering-compfest.vercel.app
 
 ## 🚀 Quick Start
 
