@@ -7,11 +7,9 @@ export interface CreateSubscriptionRequest {
 }
 
 export interface CreateTestimonialRequest {
-  name: string;
   message: string;
   rating: number;
-  plan?: string;
-  location?: string;
+  subscriptionId?: number;
 }
 
 export interface ApiResponse<T = any> {

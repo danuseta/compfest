@@ -4,8 +4,6 @@ import sequelize from '../config/database';
 interface SubscriptionAttributes {
   id: number;
   userId?: number;
-  name: string;
-  phone: string;
   planId: number;
   selectedPlan: string;
   selectedMealTypes: string[];
@@ -15,18 +13,16 @@ interface SubscriptionAttributes {
   status: 'pending' | 'confirmed' | 'active' | 'paused' | 'cancelled';
   pauseStartDate?: Date;
   pauseEndDate?: Date;
-  nextDeliveryDate?: Date;
-  createdAt?: Date;
+  created_at?: Date;
   updatedAt?: Date;
+  [key: string]: any;
 }
 
-interface SubscriptionCreationAttributes extends Optional<SubscriptionAttributes, 'id' | 'userId' | 'createdAt' | 'updatedAt'> {}
+interface SubscriptionCreationAttributes extends Optional<SubscriptionAttributes, 'id' | 'userId' | 'created_at' | 'updatedAt'> {}
 
 class Subscription extends Model<SubscriptionAttributes, SubscriptionCreationAttributes> implements SubscriptionAttributes {
   public id!: number;
   public userId?: number;
-  public name!: string;
-  public phone!: string;
   public planId!: number;
   public selectedPlan!: string;
   public selectedMealTypes!: string[];
@@ -36,8 +32,7 @@ class Subscription extends Model<SubscriptionAttributes, SubscriptionCreationAtt
   public status!: 'pending' | 'confirmed' | 'active' | 'paused' | 'cancelled';
   public pauseStartDate?: Date;
   public pauseEndDate?: Date;
-  public nextDeliveryDate?: Date;
-  public readonly createdAt!: Date;
+  public readonly created_at!: Date;
   public readonly updatedAt!: Date;
 }
 
@@ -53,22 +48,7 @@ Subscription.init(
       allowNull: true,
       field: 'user_id'
     },
-    name: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-        len: [2, 100]
-      }
-    },
-    phone: {
-      type: DataTypes.STRING(20),
-      allowNull: false,
-      validate: {
-        notEmpty: true,
-        is: /^[0-9+\-\s()]{10,15}$/
-      }
-    },
+
     planId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -124,11 +104,6 @@ Subscription.init(
       type: DataTypes.DATEONLY,
       allowNull: true,
       field: 'pause_end_date'
-    },
-    nextDeliveryDate: {
-      type: DataTypes.DATEONLY,
-      allowNull: true,
-      field: 'next_delivery_date'
     }
   },
   {
@@ -136,24 +111,20 @@ Subscription.init(
     modelName: 'Subscription',
     tableName: 'subscriptions',
     timestamps: true,
-    createdAt: 'created_at',
+          createdAt: 'created_at',
     updatedAt: 'updated_at',
     indexes: [
       {
         fields: ['user_id']
       },
-      {
-        fields: ['phone']
-      },
+
       {
         fields: ['status']
       },
       {
         fields: ['created_at']
       },
-      {
-        fields: ['next_delivery_date']
-      }
+
     ]
   }
 );

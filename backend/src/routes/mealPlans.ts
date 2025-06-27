@@ -14,6 +14,7 @@ const validateMealPlan = [
 ];
 
 router.post('/', validateMealPlan, MealPlanController.createMealPlan);
+router.get('/with-menus', MealPlanController.getMealPlansWithMenus);
 router.get('/', MealPlanController.getMealPlans);
 router.get('/:id', MealPlanController.getMealPlanById);
 router.put('/:id', MealPlanController.updateMealPlan);

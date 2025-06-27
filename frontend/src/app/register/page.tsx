@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"
+import { getApiUrl } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { FiMail, FiLock, FiUser, FiPhone, FiArrowRight, FiUserPlus, FiEye, FiEyeOff, FiCheck } from "react-icons/fi";
+import { FiMail, FiLock, FiUser, FiPhone, FiArrowRight, FiUserPlus, FiEye, FiEyeOff } from "react-icons/fi";
 import { MdRestaurant } from "react-icons/md";
 
 export default function RegisterPage() {
@@ -23,7 +24,7 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -57,7 +58,7 @@ export default function RegisterPage() {
         phone: formData.phone.trim() || null
       };
       
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/auth/register`, {
+      const response = await fetch(getApiUrl('/api/auth/register'), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,11 +69,7 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (data.success) {
-        // Clear any previous errors
         setErrors({});
-        // Show success message
-        setSuccessMessage("Registrasi berhasil! Anda akan diarahkan ke halaman login dalam 3 detik...");
-        // Redirect to login page after 3 seconds
         setTimeout(() => {
           window.location.href = "/login";
         }, 3000);
@@ -125,11 +122,7 @@ export default function RegisterPage() {
             </CardHeader>
             <CardContent className="space-y-4 sm:space-y-6 px-4 sm:px-6 pb-4 sm:pb-6">
               <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-5">
-                {successMessage && (
-                  <Alert className="border-primary/20 bg-primary/5 text-primary">
-                    <AlertDescription className="text-sm">{successMessage}</AlertDescription>
-                  </Alert>
-                )}
+
                 
                 {errors.general && (
                   <Alert variant="destructive" className="border-destructive/20 bg-destructive/5">
@@ -264,17 +257,12 @@ export default function RegisterPage() {
                 <Button 
                   type="submit" 
                   className="w-full h-11 sm:h-12 orange-gradient text-white font-semibold text-sm sm:text-base group hover:shadow-lg transition-all duration-300"
-                  disabled={isLoading || successMessage !== ""}
+                  disabled={isLoading}
                 >
                   {isLoading ? (
                     <div className="flex items-center space-x-2">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                       <span>Creating account...</span>
-                    </div>
-                  ) : successMessage ? (
-                    <div className="flex items-center space-x-2">
-                      <span>Registration Successful!</span>
-                      <FiCheck className="w-4 h-4" />
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">

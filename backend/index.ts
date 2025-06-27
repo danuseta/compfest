@@ -9,6 +9,8 @@ import authRoutes from './src/routes/auth';
 import subscriptionRoutes from './src/routes/subscription';
 import testimonialRoutes from './src/routes/testimonials';
 import mealPlanRoutes from './src/routes/mealPlans';
+import menuRoutes from './src/routes/menus';
+import adminRoutes from './src/routes/admin';
 import { errorHandler } from './src/middleware/errorHandler';
 import { requestLogger } from './src/middleware/requestLogger';
 import { 
@@ -85,6 +87,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/testimonials', testimonialRoutes);
 app.use('/api/meal-plans', mealPlanRoutes);
+app.use('/api/menus', menuRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api', (req, res) => {
   res.json({
@@ -96,7 +100,9 @@ app.get('/api', (req, res) => {
       auth: '/api/auth',
       subscriptions: '/api/subscriptions',
       testimonials: '/api/testimonials',
-      mealPlans: '/api/meal-plans'
+      mealPlans: '/api/meal-plans',
+      menus: '/api/menus',
+      admin: '/api/admin'
     },
     security: {
       authentication: 'JWT Bearer Token',

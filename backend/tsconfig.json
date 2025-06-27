@@ -13,7 +13,9 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types"],
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true
   },
   "include": ["index.ts", "src/**/*"],
   "exclude": ["node_modules", "dist"],

@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { SimpleToggle } from "@/components/ui/mode-toggle"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
@@ -14,7 +15,10 @@ import {
   FiX,
   FiLogOut,
   FiLogIn,
-  FiUserPlus
+  FiUserPlus,
+  FiUser,
+  FiSettings,
+  FiChevronDown
 } from "react-icons/fi"
 import { MdRestaurant } from "react-icons/md"
 import { isAuthenticated, getUser, logout, type User } from "@/lib/auth"
@@ -80,13 +84,37 @@ export default function Navigation() {
             
             {isLoggedIn ? (
               <div className="hidden md:flex items-center space-x-2">
-                <span className="text-sm text-muted-foreground">
-                  Hello, {user?.full_name?.split(' ')[0]}
-                </span>
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  <FiLogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="flex items-center gap-2">
+                      <FiUser className="w-4 h-4" />
+                      {user?.full_name?.split(' ')[0] || 'User'}
+                      <FiChevronDown className="w-3 h-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link href={user?.role === 'admin' ? '/admin' : '/dashboard'} className="flex items-center gap-2">
+                        {user?.role === 'admin' ? (
+                          <>
+                            <FiSettings className="w-4 h-4" />
+                            Admin Dashboard
+                          </>
+                        ) : (
+                          <>
+                            <FiUser className="w-4 h-4" />
+                            My Dashboard
+                          </>
+                        )}
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} className="flex items-center gap-2 text-red-600">
+                      <FiLogOut className="w-4 h-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ) : (
               <div className="hidden md:flex items-center space-x-2">
@@ -100,11 +128,10 @@ export default function Navigation() {
                   <Link href="/register">
                     <FiUserPlus className="w-4 h-4 mr-2" />
                     Register
-              </Link>
-            </Button>
+                  </Link>
+                </Button>
               </div>
             )}
-
 
             <Button
               variant="ghost"
@@ -143,6 +170,21 @@ export default function Navigation() {
                   <div className="text-sm text-muted-foreground px-2">
                     Hello, {user?.full_name}
                   </div>
+                  <Button variant="outline" size="sm" asChild className="w-full">
+                    <Link href={user?.role === 'admin' ? '/admin' : '/dashboard'} onClick={() => setIsMenuOpen(false)}>
+                      {user?.role === 'admin' ? (
+                        <>
+                          <FiSettings className="w-4 h-4 mr-2" />
+                          Admin Dashboard
+                        </>
+                      ) : (
+                        <>
+                          <FiUser className="w-4 h-4 mr-2" />
+                          My Dashboard
+                        </>
+                      )}
+                    </Link>
+                  </Button>
                   <Button variant="outline" size="sm" onClick={handleLogout} className="w-full">
                     <FiLogOut className="w-4 h-4 mr-2" />
                     Logout
@@ -160,11 +202,10 @@ export default function Navigation() {
                     <Link href="/register">
                       <FiUserPlus className="w-4 h-4 mr-2" />
                       Register
-                </Link>
-              </Button>
+                    </Link>
+                  </Button>
                 </div>
               )}
-
             </div>
           </div>
         )}

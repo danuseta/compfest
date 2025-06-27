@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import MealPlan from '../models/MealPlan';
+import Menu from '../models/Menu';
+import { sanitizeHtml } from '../middleware/validation';
 
 export class MealPlanController {
   
@@ -54,21 +56,47 @@ export class MealPlanController {
 
   static async getMealPlans(req: Request, res: Response): Promise<void> {
     try {
-      const activeOnly = req.query.active === 'true';
-      const whereClause = activeOnly ? { isActive: true } : {};
+      console.log('Getting meal plans...');
+      const { active } = req.query;
+      console.log('Active filter:', active);
+      
+      const whereClause: any = {};
+      if (active === 'true') {
+        whereClause.isActive = true;
+      }
 
       const mealPlans = await MealPlan.findAll({
         where: whereClause,
-        order: [['createdAt', 'ASC']]
+        include: [
+          {
+            model: Menu,
+            as: 'menus',
+            where: { isAvailable: true },
+            required: false
+          }
+        ]
       });
+
+      const sanitizedMealPlans = mealPlans.map(plan => ({
+        id: plan.id,
+        planId: plan.planId,
+        name: plan.name || '',
+        price: plan.price,
+        description: plan.description || '',
+        features: Array.isArray(plan.features) ? plan.features : [],
+        imageUrl: plan.imageUrl,
+        isActive: plan.isActive,
+        menus: (plan as any).menus || []
+      }));
+
 
       res.json({
         success: true,
-        data: mealPlans
+        data: sanitizedMealPlans
       });
 
     } catch (error) {
-      console.error('Get meal plans error:', error);
+      console.error('Error fetching meal plans:', error);
       res.status(500).json({
         success: false,
         message: 'Internal server error'
@@ -80,7 +108,17 @@ export class MealPlanController {
     try {
       const { id } = req.params;
       
-      const mealPlan = await MealPlan.findByPk(id);
+      const mealPlan = await MealPlan.findOne({
+        where: { planId: id },
+        include: [
+          {
+            model: Menu,
+            as: 'menus',
+            where: { isAvailable: true },
+            required: false
+          }
+        ]
+      });
       
       if (!mealPlan) {
         res.status(404).json({
@@ -90,13 +128,25 @@ export class MealPlanController {
         return;
       }
 
+      const sanitizedMealPlan = {
+        id: mealPlan.id,
+        planId: mealPlan.planId,
+        name: sanitizeHtml(mealPlan.name) || '',
+        price: mealPlan.price,
+        description: sanitizeHtml(mealPlan.description) || '',
+        features: Array.isArray(mealPlan.features) ? mealPlan.features : [],
+        imageUrl: mealPlan.imageUrl,
+        isActive: mealPlan.isActive,
+        menus: (mealPlan as any).menus || []
+      };
+
       res.json({
         success: true,
-        data: mealPlan
+        data: sanitizedMealPlan
       });
 
     } catch (error) {
-      console.error('Get meal plan error:', error);
+      console.error('Error fetching meal plan:', error);
       res.status(500).json({
         success: false,
         message: 'Internal server error'
@@ -175,6 +225,53 @@ export class MealPlanController {
 
     } catch (error) {
       console.error('Delete meal plan error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  static async getMealPlansWithMenus(req: Request, res: Response): Promise<void> {
+    try {
+      const { active } = req.query;
+      
+      const whereClause: any = {};
+      if (active === 'true') {
+        whereClause.isActive = true;
+      }
+
+      const mealPlans = await MealPlan.findAll({
+        where: whereClause,
+        include: [
+          {
+            model: Menu,
+            as: 'menus',
+            required: false
+          }
+        ],
+        order: [['created_at', 'ASC']]
+      });
+
+      const sanitizedMealPlans = mealPlans.map(plan => ({
+        id: plan.id,
+        planId: plan.planId,
+        name: plan.name || '',
+        price: plan.price,
+        description: plan.description || '',
+        features: Array.isArray(plan.features) ? plan.features : [],
+        imageUrl: plan.imageUrl,
+        isActive: plan.isActive,
+        menus: (plan as any).menus || []
+      }));
+
+      res.json({
+        success: true,
+        data: sanitizedMealPlans
+      });
+
+    } catch (error) {
+      console.error('Error fetching meal plans with menus:', error);
       res.status(500).json({
         success: false,
         message: 'Internal server error'

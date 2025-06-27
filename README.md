@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SEA Catering - Healthy Meal Delivery System
 
-## Getting Started
+Platform web untuk layanan catering makanan sehat dengan sistem subscription yang dapat disesuaikan.
 
-First, run the development server:
+### Access URLs
+**Demo Site**: [Coming Soon]
 
+## 🚀 Quick Start
+
+### Demo Accounts
+| Email | Password | Role |
+|-------|----------|------|
+| `admin@seacatering.com` | `admin123` | Admin |
+| `test@gmail.com` | `Test1234@` | User |
+| `sari.dewi@gmail.com` | `Test1234@` | User |
+| `budi.santoso@gmail.com` | `Test1234@` | User |
+
+*Note: Semua user account menggunakan password yang sama: `Test1234@`*
+
+## 💻 Local Development
+
+### Prerequisites
+- Node.js 18+
+- MySQL 8.0+
+
+### Setup Steps
 ```bash
+# 1. Clone repository
+git clone
+cd sea-catering
+
+# 2. Backend setup
+cd backend
+npm install
+npm run db:setup
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# 3. Frontend setup
+cd frontend
+npm install
+npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🌐 How to Use
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Public Features
+1. **Homepage** - Lihat informasi perusahaan dan fitur
+2. **Menu** - Browse meal plans (Diet, Protein, Royal)
+3. **Contact** - Info kontak dan form pesan
+4. **Login/Register** - Daftar akun baru atau login
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### User Features (Login Required)
+1. **Subscription** - Pilih meal plan dan buat subscription
+2. **Dashboard** - Kelola subscription Anda:
+   - Lihat detail subscription
+   - Pause/resume subscription
+   - Cancel subscription
+   - Write review (hanya untuk active subscription)
 
-## Learn More
+### Admin Features (admin@seacatering.com)
+1. **Admin Dashboard** - Analytics dan management:
+   - View subscription metrics
+   - Manage meal plans
+   - Approve testimonials
+   - Track revenue
 
-To learn more about Next.js, take a look at the following resources:
+## 📱 How to Subscribe
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Register/Login** di halaman login
+2. **Browse Menu** - lihat meal plans available
+3. **Go to Subscription** page
+4. **Fill form**:
+   - Pilih meal plan (Diet/Protein/Royal)
+   - Pilih meal types (Breakfast/Lunch/Dinner)
+   - Pilih delivery days
+   - Isi allergies (optional)
+5. **Submit** - subscription akan pending review
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## 🛠️ Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Frontend**: Next.js, TypeScript, Tailwind CSS
+- **Backend**: Node.js, Express, TypeScript
+- **Database**: MySQL, Prisma ORM
+- **Auth**: JWT, Bcrypt
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📂 Project Structure
+
+```
+sea-catering/
+├── frontend/          # Next.js app
+├── backend/           # Express API
+└── schema.sql          # Database dump
+```
+
+## 🔐 Security
+
+- Password encryption dengan bcrypt
+- JWT authentication
+- Input validation & sanitization
+- XSS & SQL injection protection
+- Rate limiting
+
+## 📞 Contact
+
+**Manager**: Brian  
+**Phone**: 08123456789  
+**Email**: admin@seacatering.com
+
+---
+
+*Healthy Meals, Anytime, Anywhere* 🥗

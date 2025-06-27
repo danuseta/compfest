@@ -7,16 +7,16 @@ import SubscriptionForm from "@/components/subscription/SubscriptionForm"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { FiCheckCircle, FiPhone, FiClock, FiLock, FiArrowRight } from "react-icons/fi"
+import { FiCheckCircle, FiLock, FiArrowRight } from "react-icons/fi"
 import { MdRestaurantMenu, MdLocalShipping, MdFitnessCenter } from "react-icons/md"
-import { isAuthenticated, getUser, type User } from "@/lib/auth"
+import { isAuthenticated } from "@/lib/auth"
 import Link from "next/link"
 
 export default function SubscriptionPage() {
   const [showSuccess, setShowSuccess] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const [user, setUser] = useState<User | null>(null)
+
 
   const handleSubscriptionSuccess = () => {
     setShowSuccess(true)
@@ -26,15 +26,12 @@ export default function SubscriptionPage() {
   useEffect(() => {
     const loggedIn = isAuthenticated()
     setIsLoggedIn(loggedIn)
-    if (loggedIn) {
-      setUser(getUser())
-    }
     setIsLoading(false)
   }, [])
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10">
+      <div className="min-h-screen bg-background transition-all duration-500">
         <Navigation />
         <div className="flex items-center justify-center min-h-screen">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -45,27 +42,27 @@ export default function SubscriptionPage() {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10 gradient-bg-effects">
+      <div className="min-h-screen bg-background transition-all duration-500">
         <Navigation />
         
-        <main className="pt-20">
-          <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
-            <div className="text-center mb-12">
-              <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                <FiLock className="w-12 h-12 text-primary" />
+        <main className="pt-16 md:pt-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
+            <div className="text-center mb-8 md:mb-12">
+              <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-full mb-3 md:mb-4">
+                <FiLock className="h-5 w-5 md:h-6 md:w-6 text-primary" />
               </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4 px-4">
                 Login Required
               </h1>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
                 You need to be logged in to access our subscription service. Please sign in or create an account to continue.
               </p>
             </div>
 
-            <Card className="premium-card backdrop-blur-sm border-border/50 shadow-2xl max-w-md mx-auto">
+            <Card className="premium-card backdrop-blur-sm border-border shadow-2xl max-w-md mx-auto">
               <CardHeader className="text-center pb-6">
-                <CardTitle className="text-2xl font-bold text-foreground">Access Subscription</CardTitle>
-                <CardDescription className="text-muted-foreground">
+                <CardTitle className="text-lg sm:text-xl font-bold text-foreground">Access Subscription</CardTitle>
+                <CardDescription className="text-xs sm:text-sm text-muted-foreground">
                   Sign in to start your healthy meal journey with SEA Catering
                 </CardDescription>
               </CardHeader>
@@ -78,7 +75,7 @@ export default function SubscriptionPage() {
                 </Button>
                 
                 <div className="text-center">
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Don&apos;t have an account?{" "}
                     <Link 
                       href="/register" 
@@ -92,32 +89,34 @@ export default function SubscriptionPage() {
             </Card>
 
             <div className="mt-16 text-center">
-              <div className="bg-card rounded-lg shadow-lg p-8 max-w-4xl mx-auto border border-border">
-                <h2 className="text-2xl font-bold text-foreground mb-6">Why Choose SEA Catering?</h2>
-                <div className="grid md:grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                      <MdRestaurantMenu className="text-2xl text-primary" />
+              <Card className="premium-card backdrop-blur-sm border-border shadow-2xl max-w-4xl mx-auto">
+                <CardContent className="p-6 sm:p-8">
+                  <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-6">Why Choose SEA Catering?</h2>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="text-center">
+                      <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                        <MdRestaurantMenu className="text-2xl text-primary" />
+                      </div>
+                      <h3 className="font-semibold text-sm sm:text-base lg:text-lg mb-2 text-foreground">Fresh Ingredients</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Locally sourced, premium quality ingredients in every meal</p>
                     </div>
-                    <h3 className="font-semibold text-lg mb-2 text-foreground">Fresh Ingredients</h3>
-                    <p className="text-muted-foreground">Locally sourced, premium quality ingredients in every meal</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                      <MdLocalShipping className="text-2xl text-primary" />
+                    <div className="text-center">
+                      <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                        <MdLocalShipping className="text-2xl text-primary" />
+                      </div>
+                      <h3 className="font-semibold text-sm sm:text-base lg:text-lg mb-2 text-foreground">Reliable Delivery</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">On-time delivery to your doorstep, every single day</p>
                     </div>
-                    <h3 className="font-semibold text-lg mb-2 text-foreground">Reliable Delivery</h3>
-                    <p className="text-muted-foreground">On-time delivery to your doorstep, every single day</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                      <MdFitnessCenter className="text-2xl text-primary" />
+                    <div className="text-center">
+                      <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                        <MdFitnessCenter className="text-2xl text-primary" />
+                      </div>
+                      <h3 className="font-semibold text-sm sm:text-base lg:text-lg mb-2 text-foreground">Health Focused</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">Nutritionally balanced meals designed for your wellness goals</p>
                     </div>
-                    <h3 className="font-semibold text-lg mb-2 text-foreground">Health Focused</h3>
-                    <p className="text-muted-foreground">Nutritionally balanced meals designed for your wellness goals</p>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </main>
@@ -128,77 +127,34 @@ export default function SubscriptionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-accent/10">
+    <div className="min-h-screen bg-background transition-all duration-500">
       <Navigation />
       
-      <main className="pt-20">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12 py-12">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
-              Welcome back, {user?.full_name?.split(' ')[0] || 'Member'}!
+      <main className="pt-16 md:pt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-8">
+          <div className="text-center mb-8 md:mb-12">
+            <div className="inline-flex items-center justify-center p-2 bg-primary/10 rounded-full mb-3 md:mb-4">
+              <MdRestaurantMenu className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+            </div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4 px-4">
+              Subscription Meal
             </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto px-4">
               Choose your perfect meal plan and let us deliver healthy, delicious meals to your doorstep. 
               Customize your subscription to fit your lifestyle and dietary needs.
             </p>
           </div>
 
           {showSuccess && (
-            <Alert className="mb-8 border-emerald-500 bg-emerald-50">
-              <FiCheckCircle className="h-4 w-4 text-emerald-600" />
-              <AlertDescription className="text-emerald-800">
+            <Alert className="mb-8 border-0 shadow-lg bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/30">
+              <FiCheckCircle className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              <AlertDescription className="text-emerald-800 dark:text-emerald-200">
                 Thank you! Your subscription has been successfully submitted. We&apos;ll contact you soon to confirm your order.
               </AlertDescription>
             </Alert>
           )}
 
           <SubscriptionForm onSuccess={handleSubscriptionSuccess} />
-
-          <div className="mt-16 text-center">
-            <div className="bg-card rounded-lg shadow-lg p-8 max-w-4xl mx-auto border border-border">
-              <h2 className="text-2xl font-bold text-foreground mb-6">Why Choose SEA Catering?</h2>
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                    <MdRestaurantMenu className="text-2xl text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2 text-foreground">Fresh Ingredients</h3>
-                  <p className="text-muted-foreground">Locally sourced, premium quality ingredients in every meal</p>
-                </div>
-                <div className="text-center">
-                  <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                    <MdLocalShipping className="text-2xl text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2 text-foreground">Reliable Delivery</h3>
-                  <p className="text-muted-foreground">On-time delivery to your doorstep, every single day</p>
-                </div>
-                <div className="text-center">
-                  <div className="bg-primary/10 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                    <MdFitnessCenter className="text-2xl text-primary" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2 text-foreground">Health Focused</h3>
-                  <p className="text-muted-foreground">Nutritionally balanced meals designed for your wellness goals</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-12 text-center">
-            <div className="bg-primary text-primary-foreground rounded-lg p-8">
-              <h2 className="text-2xl font-bold mb-4">Need Help?</h2>
-              <p className="text-lg mb-4">Contact our friendly team for personalized meal planning advice</p>
-              <div className="space-y-2">
-                <p className="text-primary-foreground/90 flex items-center justify-center gap-2">
-                  <FiPhone className="h-4 w-4" />
-                  Manager Brian: 08123456789
-                </p>
-                <p className="text-primary-foreground/90 flex items-center justify-center gap-2">
-                  <FiClock className="h-4 w-4" />
-                  Available: Monday - Saturday, 8AM - 8PM
-                </p>
-              </div>
-            </div>
-          </div>
         </div>
       </main>
 

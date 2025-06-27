@@ -1,7 +1,17 @@
 import { Request, Response } from 'express';
 import { validationResult } from 'express-validator';
 import Testimonial from '../models/Testimonial';
+import { User } from '../models';
 import { CreateTestimonialRequest } from '../types';
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    email: string;
+    role: string;
+    full_name: string;
+  };
+}
 
 export class TestimonialController {
   
@@ -17,14 +27,39 @@ export class TestimonialController {
         return;
       }
 
-      const { name, message, rating, plan, location }: CreateTestimonialRequest = req.body;
+      const { message, rating, subscriptionId }: CreateTestimonialRequest = req.body;
+      const userId = (req as any).user?.id;
+
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'User authentication required'
+        });
+        return;
+      }
+
+      const whereCondition: any = { userId };
+      if (subscriptionId) {
+        whereCondition.subscriptionId = subscriptionId;
+      }
+      
+      const existingTestimonial = await Testimonial.findOne({
+        where: whereCondition
+      });
+
+      if (existingTestimonial) {
+        res.status(409).json({
+          success: false,
+          message: 'You have already submitted a testimonial for this subscription. Each subscription can only have one testimonial.'
+        });
+        return;
+      }
 
       const testimonial = await Testimonial.create({
-        customerName: name,
+        userId,
+        subscriptionId: subscriptionId || undefined,
         reviewMessage: message,
         rating,
-        plan: plan || undefined,
-        location: location || undefined,
         isApproved: false
       });
 
@@ -33,17 +68,24 @@ export class TestimonialController {
         message: 'Testimonial submitted successfully. It will be reviewed before being published.',
         data: {
           id: testimonial.id,
-          customerName: testimonial.customerName,
+          userId: testimonial.userId,
           reviewMessage: testimonial.reviewMessage,
           rating: testimonial.rating,
-          plan: testimonial.plan,
-          location: testimonial.location,
-          createdAt: testimonial.createdAt
+          createdAt: testimonial.created_at
         }
       });
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Testimonial creation error:', error);
+      
+      if (error.name === 'SequelizeUniqueConstraintError') {
+        res.status(409).json({
+          success: false,
+          message: 'You have already submitted a testimonial for this subscription. Each subscription can only have one testimonial.'
+        });
+        return;
+      }
+      
       res.status(500).json({
         success: false,
         message: 'Internal server error'
@@ -67,8 +109,12 @@ export class TestimonialController {
         where: whereClause,
         limit,
         offset,
-        order: [['createdAt', 'DESC']],
-        attributes: ['id', 'customerName', 'reviewMessage', 'rating', 'plan', 'location', 'createdAt']
+        order: [['created_at', 'DESC']],
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['full_name']
+        }]
       });
 
       res.json({
@@ -96,14 +142,19 @@ export class TestimonialController {
   static async getPendingTestimonials(req: Request, res: Response): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 10;
+      const limit = parseInt(req.query.limit as string) || 50;
       const offset = (page - 1) * limit;
 
       const { count, rows: testimonials } = await Testimonial.findAndCountAll({
         where: { isApproved: false },
         limit,
         offset,
-        order: [['createdAt', 'DESC']]
+        order: [['created_at', 'DESC']],
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['full_name']
+        }]
       });
 
       res.json({
@@ -251,6 +302,114 @@ export class TestimonialController {
 
     } catch (error) {
       console.error('Delete testimonial error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  static async getTestimonialBySubscription(req: Request, res: Response): Promise<void> {
+    try {
+      const { subscriptionId } = req.params;
+      
+      const testimonial = await Testimonial.findOne({
+        where: { 
+          subscriptionId: parseInt(subscriptionId),
+          isApproved: true
+        },
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['full_name']
+        }]
+      });
+
+      res.json({
+        success: true,
+        data: testimonial
+      });
+
+    } catch (error) {
+      console.error('Get testimonial by subscription error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  static async getUserTestimonialForSubscription(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const { subscriptionId } = req.params;
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        res.status(401).json({
+          success: false,
+          message: 'User not authenticated'
+        });
+        return;
+      }
+      
+      const testimonial = await Testimonial.findOne({
+        where: {
+          userId,
+          subscriptionId: parseInt(subscriptionId)
+        },
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['full_name']
+        }]
+      });
+
+      res.json({
+        success: true,
+        data: testimonial
+      });
+
+    } catch (error) {
+      console.error('Get user testimonial error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  static async getTestimonialCountByPlan(req: Request, res: Response): Promise<void> {
+    try {
+      const { planId } = req.params;
+
+      const { Subscription } = require('../models');
+      const { MealPlan } = require('../models');
+
+      const count = await Testimonial.count({
+        where: { isApproved: true },
+        include: [{
+          model: Subscription,
+          as: 'subscription',
+          required: true,
+          where: { selected_plan: planId },
+          include: [{
+            model: MealPlan,
+            as: 'mealPlan',
+            required: true
+          }]
+        }]
+      });
+
+      res.json({
+        success: true,
+        data: {
+          count,
+          planId
+        }
+      });
+
+    } catch (error) {
+      console.error('Get testimonial count by plan error:', error);
       res.status(500).json({
         success: false,
         message: 'Internal server error'

@@ -3,28 +3,26 @@ import sequelize from '../config/database';
 
 interface TestimonialAttributes {
   id: number;
-  customerName: string;
+  userId: number;
+  subscriptionId?: number;
   reviewMessage: string;
   rating: number;
-  plan?: string;
-  location?: string;
   isApproved: boolean;
-  createdAt?: Date;
-  updatedAt?: Date;
+  created_at?: Date;
+  updated_at?: Date;
 }
 
-interface TestimonialCreationAttributes extends Optional<TestimonialAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+interface TestimonialCreationAttributes extends Optional<TestimonialAttributes, 'id' | 'created_at' | 'updated_at'> {}
 
 class Testimonial extends Model<TestimonialAttributes, TestimonialCreationAttributes> implements TestimonialAttributes {
   public id!: number;
-  public customerName!: string;
+  public userId!: number;
+  public subscriptionId?: number;
   public reviewMessage!: string;
   public rating!: number;
-  public plan?: string;
-  public location?: string;
   public isApproved!: boolean;
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  public readonly created_at!: Date;
+  public readonly updated_at!: Date;
 }
 
 Testimonial.init(
@@ -34,14 +32,27 @@ Testimonial.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    customerName: {
-      type: DataTypes.STRING(100),
+    userId: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-      field: 'customer_name',
-      validate: {
-        notEmpty: true,
-        len: [2, 100]
-      }
+      field: 'user_id',
+      references: {
+        model: 'users',
+        key: 'id'
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
+    },
+    subscriptionId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      field: 'subscription_id',
+      references: {
+        model: 'subscriptions',
+        key: 'id'
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE'
     },
     reviewMessage: {
       type: DataTypes.TEXT,
@@ -60,28 +71,28 @@ Testimonial.init(
         max: 5
       }
     },
-    plan: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-    },
-    location: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-    },
     isApproved: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
       defaultValue: false,
       field: 'is_approved'
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
     }
   },
   {
     sequelize,
     modelName: 'Testimonial',
     tableName: 'testimonials',
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
+    timestamps: false,
     indexes: [
       {
         fields: ['is_approved']

@@ -65,8 +65,6 @@ export class SubscriptionController {
 
       const subscription = await Subscription.create({
         userId: req.user?.id,
-        name: req.user?.full_name || 'N/A',
-        phone: '',
         planId: mealPlan.id,
         selectedPlan,
         selectedMealTypes,
@@ -81,15 +79,13 @@ export class SubscriptionController {
         message: 'Subscription created successfully',
         data: {
           id: subscription.id,
-          name: subscription.name,
-          phone: subscription.phone,
           selectedPlan: subscription.selectedPlan,
           selectedMealTypes: subscription.selectedMealTypes,
           selectedDeliveryDays: subscription.selectedDeliveryDays,
           allergies: subscription.allergies,
           totalPrice: subscription.totalPrice,
           status: subscription.status,
-          createdAt: subscription.createdAt
+          createdAt: subscription.created_at
         }
       });
 
@@ -134,7 +130,7 @@ export class SubscriptionController {
         ],
         limit,
         offset,
-        order: [['createdAt', 'DESC']]
+        order: [[Subscription.sequelize!.col('created_at'), 'DESC']]
       });
 
       res.json({
@@ -261,6 +257,122 @@ export class SubscriptionController {
 
     } catch (error) {
       console.error('Update subscription status error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  static async pauseSubscription(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { pauseStartDate, pauseEndDate } = req.body;
+
+      const whereClause: any = { id };
+      if (req.user?.role !== 'admin') {
+        whereClause.userId = req.user?.id;
+      }
+
+      const subscription = await Subscription.findOne({ where: whereClause });
+      if (!subscription) {
+        res.status(404).json({
+          success: false,
+          message: 'Subscription not found'
+        });
+        return;
+      }
+
+      if (subscription.status !== 'active') {
+        res.status(400).json({
+          success: false,
+          message: 'Only active subscriptions can be paused'
+        });
+        return;
+      }
+
+      const startDate = new Date(pauseStartDate);
+      const endDate = new Date(pauseEndDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      if (startDate < today) {
+        res.status(400).json({
+          success: false,
+          message: 'Start date cannot be in the past'
+        });
+        return;
+      }
+
+      if (endDate <= startDate) {
+        res.status(400).json({
+          success: false,
+          message: 'End date must be after start date'
+        });
+        return;
+      }
+
+      await subscription.update({
+        status: 'paused',
+        pauseStartDate: pauseStartDate,
+        pauseEndDate: pauseEndDate
+      });
+
+      res.json({
+        success: true,
+        message: 'Subscription paused successfully',
+        data: subscription
+      });
+
+    } catch (error) {
+      console.error('Pause subscription error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error'
+      });
+    }
+  }
+
+  static async resumeSubscription(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+
+      const whereClause: any = { id };
+      if (req.user?.role !== 'admin') {
+        whereClause.userId = req.user?.id;
+      }
+
+      const subscription = await Subscription.findOne({ where: whereClause });
+      if (!subscription) {
+        res.status(404).json({
+          success: false,
+          message: 'Subscription not found'
+        });
+        return;
+      }
+
+      if (subscription.status !== 'paused') {
+        res.status(400).json({
+          success: false,
+          message: 'Only paused subscriptions can be resumed'
+        });
+        return;
+      }
+
+      await subscription.update({
+        status: 'active',
+        pauseStartDate: undefined,
+        pauseEndDate: undefined
+      });
+
+      res.json({
+        success: true,
+        message: 'Subscription resumed successfully',
+        data: subscription
+      });
+
+    } catch (error) {
+      console.error('Resume subscription error:', error);
       res.status(500).json({
         success: false,
         message: 'Internal server error'

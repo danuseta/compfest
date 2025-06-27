@@ -10,11 +10,11 @@ interface MealPlanAttributes {
   features: string[];
   imageUrl?: string;
   isActive: boolean;
-  createdAt?: Date;
+  created_at?: Date;
   updatedAt?: Date;
 }
 
-interface MealPlanCreationAttributes extends Optional<MealPlanAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
+interface MealPlanCreationAttributes extends Optional<MealPlanAttributes, 'id' | 'created_at' | 'updatedAt'> {}
 
 class MealPlan extends Model<MealPlanAttributes, MealPlanCreationAttributes> implements MealPlanAttributes {
   public id!: number;
@@ -25,7 +25,7 @@ class MealPlan extends Model<MealPlanAttributes, MealPlanCreationAttributes> imp
   public features!: string[];
   public imageUrl?: string;
   public isActive!: boolean;
-  public readonly createdAt!: Date;
+  public readonly created_at!: Date;
   public readonly updatedAt!: Date;
 }
 
